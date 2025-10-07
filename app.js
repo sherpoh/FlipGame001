@@ -2,7 +2,7 @@ const contractAddress = "0x0a26278EDF60c74ddcfce3fCFc9Bb113C09C6894";
 
 let provider, signer, contract;
 
-window.onload = async () => {
+document.getElementById("connectBtn").onclick = async () => {
   if (window.ethereum) {
     provider = new ethers.providers.Web3Provider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
@@ -12,12 +12,21 @@ window.onload = async () => {
     const abi = await response.json();
 
     contract = new ethers.Contract(contractAddress, abi, signer);
+
+    const address = await signer.getAddress();
+    document.getElementById("walletAddress").innerText = `Wallet terhubung: ${address}`;
+    document.getElementById("status").innerText = "Wallet berhasil terhubung.";
   } else {
     document.getElementById("status").innerText = "Metamask tidak terdeteksi.";
   }
 };
 
 async function playFlip() {
+  if (!contract) {
+    document.getElementById("status").innerText = "Hubungkan wallet terlebih dahulu.";
+    return;
+  }
+
   const choice = document.getElementById("choice").value;
   const bet = document.getElementById("betAmount").value;
 
@@ -39,6 +48,11 @@ async function playFlip() {
 }
 
 async function redeemFLIP() {
+  if (!contract) {
+    document.getElementById("status").innerText = "Hubungkan wallet terlebih dahulu.";
+    return;
+  }
+
   const amount = document.getElementById("redeemAmount").value;
 
   if (!amount || amount <= 0) {
