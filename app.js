@@ -1,5 +1,7 @@
-const contractAddress = "0x0a26278EDF60c74ddcfce3fCFc9Bb113C09C6894"; // ganti dengan alamat FlipGame kamu
-const abi = [/* paste isi abi.json di sini */];
+// Import ABI dari file JSON
+import abi from './abi.json'; // pastikan path-nya sesuai lokasi file kamu
+
+const contractAddress = "0x0a26278EDF60c74ddcfce3fCFc9Bb113C09C6894";
 
 let provider, signer, contract;
 
