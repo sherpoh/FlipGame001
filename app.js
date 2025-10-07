@@ -1,6 +1,8 @@
 const contractAddress = "0x0a26278EDF60c74ddcfce3fCFc9Bb113C09C6894";
+
 let provider, signer, contract;
 
+// Fungsi koneksi wallet (Metamask atau OKX)
 document.getElementById("connectBtn").onclick = async () => {
   try {
     if (window.okxwallet) {
@@ -27,6 +29,7 @@ document.getElementById("connectBtn").onclick = async () => {
   }
 };
 
+// Fungsi mainkan flip
 async function playFlip() {
   if (!contract) {
     document.getElementById("status").innerText = "Hubungkan wallet terlebih dahulu.";
@@ -35,6 +38,7 @@ async function playFlip() {
 
   const choice = document.getElementById("choice").value;
   const bet = document.getElementById("betAmount").value;
+
   if (!bet || bet <= 0) {
     document.getElementById("status").innerText = "Masukkan jumlah taruhan yang valid.";
     return;
@@ -46,17 +50,13 @@ async function playFlip() {
     const tx = await contract.playFlip(choice, { value });
     document.getElementById("status").innerText = "Transaksi dikirim: " + tx.hash;
     await tx.wait();
-
-    // Ambil hasil flip dari event atau panggil view function
-    const result = await contract.getLastFlipResult();
-    const outcome = result.won ? "Menang 🎉" : "Kalah 😢";
-    document.getElementById("result").innerText = `Hasil: ${outcome}`;
     document.getElementById("status").innerText = "Flip selesai!";
   } catch (err) {
     document.getElementById("status").innerText = "Error saat flip: " + err.message;
   }
 }
 
+// Fungsi redeem FLIP
 async function redeemFLIP() {
   if (!contract) {
     document.getElementById("status").innerText = "Hubungkan wallet terlebih dahulu.";
@@ -64,6 +64,7 @@ async function redeemFLIP() {
   }
 
   const amount = document.getElementById("redeemAmount").value;
+
   if (!amount || amount <= 0) {
     document.getElementById("status").innerText = "Masukkan jumlah FLIP yang valid.";
     return;
