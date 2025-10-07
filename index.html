@@ -3,7 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <title>FLIP Game</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    h1 { color: #2c3e50; }
+    label { display: block; margin-top: 20px; font-weight: bold; }
+    input, select {
+      padding: 8px;
+      margin-top: 5px;
+      width: 200px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover { background-color: #2980b9; }
+    hr { margin: 30px 0; }
+    #status { font-weight: bold; margin-top: 10px; color: #27ae60; }
+    #walletAddress { margin-top: 10px; font-style: italic; color: #555; }
+  </style>
 </head>
 <body>
   <h1>🎲 FLIP Game</h1>
@@ -34,6 +60,82 @@
   <p id="status"></p>
 
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-  <script src="app.js" defer></script>
+  <script>
+    const contractAddress = "0x0a26278EDF60c74ddcfce3fCFc9Bb113C09C6894";
+    let provider, signer, contract;
+
+    document.getElementById("connectBtn").onclick = async () => {
+      try {
+        if (window.okxwallet) {
+          provider = new ethers.providers.Web3Provider(window.okxwallet);
+        } else if (window.ethereum) {
+          provider = new ethers.providers.Web3Provider(window.ethereum);
+        } else {
+          document.getElementById("status").innerText = "Tidak ada wallet yang terdeteksi.";
+          return;
+        }
+
+        await provider.send("eth_requestAccounts", []);
+        signer = provider.getSigner();
+
+        const response = await fetch('./abi.json');
+        const abi = await response.json();
+        contract = new ethers.Contract(contractAddress, abi, signer);
+
+        const address = await signer.getAddress();
+        document.getElementById("walletAddress").innerText = `Wallet terhubung: ${address}`;
+        document.getElementById("status").innerText = "Wallet berhasil terhubung.";
+      } catch (err) {
+        document.getElementById("status").innerText = "Gagal koneksi wallet: " + err.message;
+      }
+    };
+
+    async function playFlip() {
+      if (!contract) {
+        document.getElementById("status").innerText = "Hubungkan wallet terlebih dahulu.";
+        return;
+      }
+
+      const choice = document.getElementById("choice").value;
+      const bet = document.getElementById("betAmount").value;
+      if (!bet || bet <= 0) {
+        document.getElementById("status").innerText = "Masukkan jumlah taruhan yang valid.";
+        return;
+      }
+
+      const value = ethers.utils.parseEther(bet);
+      try {
+        const tx = await contract.playFlip(choice, { value });
+        document.getElementById("status").innerText = "Transaksi dikirim: " + tx.hash;
+        await tx.wait();
+        document.getElementById("status").innerText = "Flip selesai!";
+      } catch (err) {
+        document.getElementById("status").innerText = "Error saat flip: " + err.message;
+      }
+    }
+
+    async function redeemFLIP() {
+      if (!contract) {
+        document.getElementById("status").innerText = "Hubungkan wallet terlebih dahulu.";
+        return;
+      }
+
+      const amount = document.getElementById("redeemAmount").value;
+      if (!amount || amount <= 0) {
+        document.getElementById("status").innerText = "Masukkan jumlah FLIP yang valid.";
+        return;
+      }
+
+      const tokens = ethers.utils.parseUnits(amount, 18);
+      try {
+        const tx = await contract.redeemFLIP(tokens);
+        document.getElementById("status").innerText = "Convert dikirim: " + tx.hash;
+        await tx.wait();
+        document.getElementById("status").innerText = "FLIP berhasil ditukar!";
+      } catch (err) {
+        document.getElementById("status").innerText = "Error saat convert: " + err.message;
+      }
+    }
+  </script>
 </body>
 </html>
