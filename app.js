@@ -1,6 +1,3 @@
-// Import ABI dari file JSON
-import abi from './abi.json'; // pastikan path-nya sesuai lokasi file kamu
-
 const contractAddress = "0x0a26278EDF60c74ddcfce3fCFc9Bb113C09C6894";
 
 let provider, signer, contract;
@@ -10,6 +7,10 @@ window.onload = async () => {
     provider = new ethers.providers.Web3Provider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
     signer = provider.getSigner();
+
+    const response = await fetch('./abi.json');
+    const abi = await response.json();
+
     contract = new ethers.Contract(contractAddress, abi, signer);
   } else {
     document.getElementById("status").innerText = "Metamask tidak terdeteksi.";
@@ -19,6 +20,12 @@ window.onload = async () => {
 async function playFlip() {
   const choice = document.getElementById("choice").value;
   const bet = document.getElementById("betAmount").value;
+
+  if (!bet || bet <= 0) {
+    document.getElementById("status").innerText = "Masukkan jumlah taruhan yang valid.";
+    return;
+  }
+
   const value = ethers.utils.parseEther(bet);
 
   try {
@@ -33,6 +40,12 @@ async function playFlip() {
 
 async function redeemFLIP() {
   const amount = document.getElementById("redeemAmount").value;
+
+  if (!amount || amount <= 0) {
+    document.getElementById("status").innerText = "Masukkan jumlah FLIP yang valid.";
+    return;
+  }
+
   const tokens = ethers.utils.parseUnits(amount, 18);
 
   try {
