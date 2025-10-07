@@ -1,4 +1,4 @@
-const contractAddress = "0xYOUR_CONTRACT_ADDRESS"; // ganti dengan alamat FlipGame kamu
+const contractAddress = "0x0a26278EDF60c74ddcfce3fCFc9Bb113C09C6894"; // ganti dengan alamat FlipGame kamu
 const abi = [/* paste isi abi.json di sini */];
 
 let provider, signer, contract;
