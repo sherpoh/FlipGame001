@@ -2,25 +2,34 @@ const contractAddress = "0x0a26278EDF60c74ddcfce3fCFc9Bb113C09C6894";
 
 let provider, signer, contract;
 
+// Fungsi koneksi wallet
 document.getElementById("connectBtn").onclick = async () => {
-  if (window.ethereum) {
+  if (window.okxwallet) {
+    provider = new ethers.providers.Web3Provider(window.okxwallet);
+  } else if (window.ethereum) {
     provider = new ethers.providers.Web3Provider(window.ethereum);
+  } else {
+    document.getElementById("status").innerText = "Tidak ada wallet yang terdeteksi.";
+    return;
+  }
+
+  try {
     await provider.send("eth_requestAccounts", []);
     signer = provider.getSigner();
 
     const response = await fetch('./abi.json');
     const abi = await response.json();
-
     contract = new ethers.Contract(contractAddress, abi, signer);
 
     const address = await signer.getAddress();
     document.getElementById("walletAddress").innerText = `Wallet terhubung: ${address}`;
     document.getElementById("status").innerText = "Wallet berhasil terhubung.";
-  } else {
-    document.getElementById("status").innerText = "Metamask tidak terdeteksi.";
+  } catch (err) {
+    document.getElementById("status").innerText = "Gagal koneksi wallet: " + err.message;
   }
 };
 
+// Fungsi mainkan flip
 async function playFlip() {
   if (!contract) {
     document.getElementById("status").innerText = "Hubungkan wallet terlebih dahulu.";
@@ -43,10 +52,11 @@ async function playFlip() {
     await tx.wait();
     document.getElementById("status").innerText = "Flip selesai!";
   } catch (err) {
-    document.getElementById("status").innerText = "Error: " + err.message;
+    document.getElementById("status").innerText = "Error saat flip: " + err.message;
   }
 }
 
+// Fungsi redeem FLIP
 async function redeemFLIP() {
   if (!contract) {
     document.getElementById("status").innerText = "Hubungkan wallet terlebih dahulu.";
@@ -68,6 +78,6 @@ async function redeemFLIP() {
     await tx.wait();
     document.getElementById("status").innerText = "FLIP berhasil ditukar!";
   } catch (err) {
-    document.getElementById("status").innerText = "Error: " + err.message;
+    document.getElementById("status").innerText = "Error saat convert: " + err.message;
   }
 }
