@@ -2,8 +2,11 @@ const contractAddress = "0x0a26278EDF60c74ddcfce3fCFc9Bb113C09C6894";
 
 let provider, signer, contract;
 
-// Fungsi koneksi wallet (Metamask atau OKX)
-document.getElementById("connectBtn").onclick = async () => {
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("connectBtn").addEventListener("click", connectWallet);
+});
+
+async function connectWallet() {
   try {
     if (window.okxwallet) {
       provider = new ethers.providers.Web3Provider(window.okxwallet);
@@ -27,9 +30,8 @@ document.getElementById("connectBtn").onclick = async () => {
   } catch (err) {
     document.getElementById("status").innerText = "Gagal koneksi wallet: " + err.message;
   }
-};
+}
 
-// Fungsi mainkan flip
 async function playFlip() {
   if (!contract) {
     document.getElementById("status").innerText = "Hubungkan wallet terlebih dahulu.";
@@ -56,7 +58,6 @@ async function playFlip() {
   }
 }
 
-// Fungsi redeem FLIP
 async function redeemFLIP() {
   if (!contract) {
     document.getElementById("status").innerText = "Hubungkan wallet terlebih dahulu.";
