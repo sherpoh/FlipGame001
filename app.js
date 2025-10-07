@@ -2,18 +2,18 @@ const contractAddress = "0x0a26278EDF60c74ddcfce3fCFc9Bb113C09C6894";
 
 let provider, signer, contract;
 
-// Fungsi koneksi wallet
+// Fungsi koneksi wallet (Metamask atau OKX)
 document.getElementById("connectBtn").onclick = async () => {
-  if (window.okxwallet) {
-    provider = new ethers.providers.Web3Provider(window.okxwallet);
-  } else if (window.ethereum) {
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-  } else {
-    document.getElementById("status").innerText = "Tidak ada wallet yang terdeteksi.";
-    return;
-  }
-
   try {
+    if (window.okxwallet) {
+      provider = new ethers.providers.Web3Provider(window.okxwallet);
+    } else if (window.ethereum) {
+      provider = new ethers.providers.Web3Provider(window.ethereum);
+    } else {
+      document.getElementById("status").innerText = "Tidak ada wallet yang terdeteksi.";
+      return;
+    }
+
     await provider.send("eth_requestAccounts", []);
     signer = provider.getSigner();
 
