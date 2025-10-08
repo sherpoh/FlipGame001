@@ -38,7 +38,6 @@ async function playFlip() {
 
   const choice = document.getElementById("choice").value;
   const bet = document.getElementById("betAmount").value;
-
   if (!bet || bet <= 0) {
     document.getElementById("status").innerText = "Masukkan jumlah taruhan yang valid.";
     return;
@@ -49,12 +48,24 @@ async function playFlip() {
   try {
     const tx = await contract.playFlip(choice, { value });
     document.getElementById("status").innerText = "Transaksi dikirim: " + tx.hash;
-    await tx.wait();
+    const receipt = await tx.wait();
+
+    // Cari event FlipResult di receipt
+    const flipEvent = receipt.events.find(e => e.event === "FlipResult");
+    if (flipEvent) {
+      const won = flipEvent.args.won;
+      const outcome = won ? "Menang 🎉" : "Kalah 😢";
+      document.getElementById("flipLog").innerText = `Hasil: ${outcome}`;
+    } else {
+      document.getElementById("flipLog").innerText = "Tidak bisa membaca hasil flip.";
+    }
+
     document.getElementById("status").innerText = "Flip selesai!";
   } catch (err) {
     document.getElementById("status").innerText = "Error saat flip: " + err.message;
   }
 }
+
 
 // Fungsi redeem FLIP
 async function redeemFLIP() {
